@@ -2,7 +2,7 @@ const { network, ethers } = require("hardhat")
 const { developmentChains, networkConfig } = require("../helper-hardhat-config")
 const { verify } = require("../utils/verify")
 
-const VRF_SUB_FUND_AMOUNT = ethers.utils.parseEthers("2")
+const VRF_SUB_FUND_AMOUNT = ethers.utils.parseEther("2")
 
 module.exports = async function ({ getNamedAccounts, deployments }) {
     const { deploy, log } = deployments
@@ -12,16 +12,16 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
     // Defining arguments for the contract constructor
     let vrfCoordinatorV2Address
     let subscriptionId
+    let vrfCoordinatorV2Mock
     if (developmentChains.includes(network.name)) {
-        const vrfCoordinatorV2Mock = await ethers.getContract(
-            "VRFCoordinatorV2Mock"
-        )
+        vrfCoordinatorV2Mock = await ethers.getContract("VRFCoordinatorV2Mock")
         vrfCoordinatorV2Address = vrfCoordinatorV2Mock.address
 
         const txResponse = await vrfCoordinatorV2Mock.createSubscription()
-        const txResceipt = txResponse.wait(1)
-        subscriptionId = txResceipt.events[0].args.subId
+        const txReceipt = await txResponse.wait(1)
+        subscriptionId = txReceipt.events[0].args.subId
 
+        // To fund fake LINK for coordinator to handle offchain functionality
         await vrfCoordinatorV2Mock.fundSubscription(
             subscriptionId,
             VRF_SUB_FUND_AMOUNT
@@ -48,12 +48,15 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
         interval
     ]
 
-    const raffle = await deploy("raffle", {
+    const raffle = await deploy("Raffle", {
         from: deployer,
         args,
         waitConfirmations: network.config.blockConfirmations || 1,
         log: true
     })
+
+    log("Raffle deployed!")
+    log("________________________________________________________________")
 
     if (
         !developmentChains.includes(network.name) &&
@@ -61,6 +64,18 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
     ) {
         log("Verifiying...")
         await verify(raffle.address, args)
+        log("Verrification completed")
+        log("________________________________________________________________")
+    }
+
+    if (chainId == 31337) {
+        log("Adding consumer address to the local Keeper...")
+        await vrfCoordinatorV2Mock.addConsumer(
+            subscriptionId.toNumber(),
+            raffle.address
+        )
+        log("Adding consumer completed")
+        log("________________________________________________________________")
     }
 }
 

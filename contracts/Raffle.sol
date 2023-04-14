@@ -23,7 +23,7 @@ error Raffle__UpkeepNotNeeded(
 
 /**
  * @title Auto Random Raffle Smart Contract
- * @author Kalio
+ * @author Kalio753
  * @notice This contract create a automatic random decetralized lottery for players to join
  * @dev Implement Chainlink VRF & Chainlink Keepers
  */
@@ -34,6 +34,7 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
         OPEN,
         CALCULATING
     }
+    // This will assign OPEN as 0; CALCULATING as 1
 
     // State variables
     uint256 private immutable i_entranceFee;
@@ -72,7 +73,7 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
         i_gasLane = gasLane;
         i_subscriptionId = subscriptionId;
         i_callbackGasLimit = callbackGasLimit;
-        s_raffleState = RaffleState.OPEN;
+        s_raffleState = RaffleState.OPEN; // RaffleState.OPEN == RaffleState(0)
         s_lastTimeStamp = block.timestamp;
         i_interval = interval;
     }
@@ -90,6 +91,14 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
         emit RaffleEnter(msg.sender);
     }
 
+    /**
+     * @dev This is fuction of Chainlink Keeper to check when to reload scripts
+     * When to update :
+     * 1. It's time (check time pass if greater than interval passed in)
+     * 2. Have at least 1 player & some ETH in the Lottery
+     * 3. Subscription should have some LINK (The service online)
+     * 4. The state of lotter should be 'open'
+     */
     function checkUpkeep(
         bytes memory /* checkData */
     )
@@ -120,11 +129,11 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
 
         s_raffleState = RaffleState.CALCULATING;
         uint256 reqId = i_vrfCoordinator.requestRandomWords(
-            i_gasLane, // gas lane
+            i_gasLane, // gas lane (total WEI to consume base on different network)
             i_subscriptionId, // contract on chain which handle the calculation for the randomness
-            REQUEST_CONFIRMATIONS,
-            i_callbackGasLimit,
-            NUM_WORDS
+            REQUEST_CONFIRMATIONS, // How many blocks u want to wait on Chainlink node to response
+            i_callbackGasLimit, // How much gas until it revert
+            NUM_WORDS // How many random numbers you want to take
         );
 
         emit RequestedRaffleWinner(reqId);
@@ -137,24 +146,17 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
         uint256 indexOfWinner = randomWords[0] % s_players.length;
         address payable winner = s_players[indexOfWinner];
         s_recentWinner = winner;
-        s_raffleState = RaffleState.OPEN;
-        s_players = new address payable[](0);
-        s_lastTimeStamp = block.timestamp;
         (bool success, ) = winner.call{value: address(this).balance}("");
         if (!success) {
             revert Raffle__FailedToRewardWinner();
         }
         emit PickedWinner(winner);
-    }
 
-    /**
-     * @dev This is fuction of Chainlink Keeper to check when to reload scripts
-     * When to update :
-     * 1. It's time (check time pass if greater than interval passed in)
-     * 2. Have at least 1 player & some ETH in the Lottery
-     * 3. Subscription should have some LINK (The service online)
-     * 4. The state of lotter should be 'open'
-     */
+        // Reset lottery
+        s_raffleState = RaffleState.OPEN;
+        s_players = new address payable[](0);
+        s_lastTimeStamp = block.timestamp;
+    }
 
     // Pure / view functions
     function getEntranceFee() public view returns (uint256) {
@@ -173,6 +175,7 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
         return s_raffleState;
     }
 
+    // If not reading data from the storage, we can use pure
     function getNumWords() public pure returns (uint256) {
         return NUM_WORDS;
     }
@@ -183,5 +186,9 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
 
     function getLatestTimeStamp() public view returns (uint256) {
         return s_lastTimeStamp;
+    }
+
+    function getInterval() public view returns (uint256) {
+        return i_interval;
     }
 }

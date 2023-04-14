@@ -6,8 +6,8 @@ require("hardhat-gas-reporter")
 require("hardhat-contract-sizer")
 require("dotenv").config()
 
-const GOERLI_RPC_URL = process.env.GOERLI_RPC_URL
-const GOERLI_PRIVATE_KEY = process.env.GOERLI_PRIVATE_KEY
+const SEPOLIA_RPC_URL = process.env.SEPOLIA_RPC_URL
+const SEPOLIA_PRIVATE_KEY = process.env.SEPOLIA_PRIVATE_KEY
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY
 // const LOCAL_RPC_URL = process.env.LOCAL_RPC_URL
 const COINMARKETCAP_API = process.env.COINMARKETCAP_API
@@ -19,34 +19,35 @@ module.exports = {
     networks: {
         hardhat: {
             chainId: 31337,
-            blockConfimations: 1
+            blockConfimations: 1,
         },
-        goerli: {
-            chainId: 5,
+        SEPOLIA: {
+            chainId: 11155111,
             blockConfimations: 6,
-            url: GOERLI_RPC_URL,
-            accounts: [GOERLI_PRIVATE_KEY]
-        }
+            url: SEPOLIA_RPC_URL,
+            accounts: [SEPOLIA_PRIVATE_KEY],
+            saveDeployments: true,
+        },
     },
     gasReporter: {
         enabled: false,
         outputFile: "gas-report.txt",
         noColors: true,
         currency: "USD",
-        coinmarketcap: COINMARKETCAP_API
+        coinmarketcap: COINMARKETCAP_API,
     },
     etherscan: {
-        apiKey: process.env.ETHERSCAN_API_KEY
+        apiKey: process.env.ETHERSCAN_API_KEY,
     },
     namedAccounts: {
         deployer: {
-            default: 0
+            default: 0,
         },
         player: {
-            default: 1
-        }
+            default: 1,
+        },
     },
     mocha: {
-        timeout: 300000 // 300 seconds
-    }
+        timeout: 300000, // 300 seconds
+    },
 }

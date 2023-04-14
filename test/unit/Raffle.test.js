@@ -1,7 +1,7 @@
 const { network, getNamedAccounts, deployments, ethers } = require("hardhat")
 const {
     developmentChains,
-    networkConfig
+    networkConfig,
 } = require("../../helper-hardhat-config")
 const { assert, expect } = require("chai")
 
@@ -65,7 +65,7 @@ if (developmentChains.includes(network.name)) {
 
                 // These 2 functions get from here: https://hardhat.org/hardhat-network/docs/reference
                 await network.provider.send("evm_increaseTime", [
-                    interval.toNumber() + 1
+                    interval.toNumber() + 1,
                 ])
                 await network.provider.send("evm_mine", [])
 
@@ -80,7 +80,7 @@ if (developmentChains.includes(network.name)) {
         describe("checkUpkeep", () => {
             it("returns false if ppl haven't send any ETH", async () => {
                 await network.provider.send("evm_increaseTime", [
-                    interval.toNumber() + 1
+                    interval.toNumber() + 1,
                 ])
                 await network.provider.send("evm_mine", [])
 
@@ -92,7 +92,7 @@ if (developmentChains.includes(network.name)) {
                 await raffle.enterRaffle({ value: raffleEntranceFee })
 
                 await network.provider.send("evm_increaseTime", [
-                    interval.toNumber() + 1
+                    interval.toNumber() + 1,
                 ])
                 await network.provider.send("evm_mine", [])
 
@@ -107,7 +107,7 @@ if (developmentChains.includes(network.name)) {
                 await raffle.enterRaffle({ value: raffleEntranceFee })
 
                 await network.provider.send("evm_increaseTime", [
-                    interval.toNumber() - 5
+                    interval.toNumber() - 5,
                 ])
                 await network.provider.send("evm_mine", [])
 
@@ -119,7 +119,7 @@ if (developmentChains.includes(network.name)) {
                 await raffle.enterRaffle({ value: raffleEntranceFee })
 
                 await network.provider.send("evm_increaseTime", [
-                    interval.toNumber() + 1
+                    interval.toNumber() + 1,
                 ])
                 await network.provider.send("evm_mine", [])
 
@@ -133,7 +133,7 @@ if (developmentChains.includes(network.name)) {
                 await raffle.enterRaffle({ value: raffleEntranceFee })
 
                 await network.provider.send("evm_increaseTime", [
-                    interval.toNumber() + 1
+                    interval.toNumber() + 1,
                 ])
                 await network.provider.send("evm_mine", [])
 
@@ -153,7 +153,7 @@ if (developmentChains.includes(network.name)) {
                 await raffle.enterRaffle({ value: raffleEntranceFee })
 
                 await network.provider.send("evm_increaseTime", [
-                    interval.toNumber() + 1
+                    interval.toNumber() + 1,
                 ])
                 await network.provider.send("evm_mine", [])
 
@@ -172,7 +172,7 @@ if (developmentChains.includes(network.name)) {
                 await raffle.enterRaffle({ value: raffleEntranceFee })
 
                 await network.provider.send("evm_increaseTime", [
-                    interval.toNumber() + 1
+                    interval.toNumber() + 1,
                 ])
                 await network.provider.send("evm_mine", [])
             })
@@ -195,13 +195,14 @@ if (developmentChains.includes(network.name)) {
                 ) {
                     const accountConnectedRaffle = raffle.connect(accounts[i])
                     await accountConnectedRaffle.enterRaffle({
-                        value: raffleEntranceFee
+                        value: raffleEntranceFee,
                     })
                 }
 
                 const startingTimestamp = await raffle.getLatestTimeStamp()
 
                 await new Promise(async (resolve, reject) => {
+                    // These only mocking on the testnet, started from here
                     const tx = await raffle.performUpkeep([])
                     const txReceipt = await tx.wait(1)
                     const winnerStartingBalance = await accounts[1].getBalance()
@@ -209,6 +210,7 @@ if (developmentChains.includes(network.name)) {
                         txReceipt.events[1].args.reqId,
                         raffle.address
                     )
+                    // _____________________________ended___________________________________
 
                     // once(): once this event is emitted, this func will run
                     raffle.once("PickedWinner", async () => {

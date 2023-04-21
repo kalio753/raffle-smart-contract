@@ -1,7 +1,7 @@
 const { network, getNamedAccounts, deployments, ethers } = require("hardhat")
 const {
     developmentChains,
-    networkConfig,
+    networkConfig
 } = require("../../helper-hardhat-config")
 const { assert, expect } = require("chai")
 
@@ -65,7 +65,7 @@ if (developmentChains.includes(network.name)) {
 
                 // These 2 functions get from here: https://hardhat.org/hardhat-network/docs/reference
                 await network.provider.send("evm_increaseTime", [
-                    interval.toNumber() + 1,
+                    interval.toNumber() + 1
                 ])
                 await network.provider.send("evm_mine", [])
 
@@ -80,7 +80,7 @@ if (developmentChains.includes(network.name)) {
         describe("checkUpkeep", () => {
             it("returns false if ppl haven't send any ETH", async () => {
                 await network.provider.send("evm_increaseTime", [
-                    interval.toNumber() + 1,
+                    interval.toNumber() + 1
                 ])
                 await network.provider.send("evm_mine", [])
 
@@ -92,7 +92,7 @@ if (developmentChains.includes(network.name)) {
                 await raffle.enterRaffle({ value: raffleEntranceFee })
 
                 await network.provider.send("evm_increaseTime", [
-                    interval.toNumber() + 1,
+                    interval.toNumber() + 1
                 ])
                 await network.provider.send("evm_mine", [])
 
@@ -107,7 +107,7 @@ if (developmentChains.includes(network.name)) {
                 await raffle.enterRaffle({ value: raffleEntranceFee })
 
                 await network.provider.send("evm_increaseTime", [
-                    interval.toNumber() - 5,
+                    interval.toNumber() - 5
                 ])
                 await network.provider.send("evm_mine", [])
 
@@ -119,7 +119,7 @@ if (developmentChains.includes(network.name)) {
                 await raffle.enterRaffle({ value: raffleEntranceFee })
 
                 await network.provider.send("evm_increaseTime", [
-                    interval.toNumber() + 1,
+                    interval.toNumber() + 1
                 ])
                 await network.provider.send("evm_mine", [])
 
@@ -133,7 +133,7 @@ if (developmentChains.includes(network.name)) {
                 await raffle.enterRaffle({ value: raffleEntranceFee })
 
                 await network.provider.send("evm_increaseTime", [
-                    interval.toNumber() + 1,
+                    interval.toNumber() + 1
                 ])
                 await network.provider.send("evm_mine", [])
 
@@ -142,18 +142,18 @@ if (developmentChains.includes(network.name)) {
                 assert(tx)
             })
 
+            // WTF WRONG W THIS ???
             // it("revert if checkUpkeep is false", async () => {
-
-            //     await expect(await raffle.performUpkeep([])).to.be.revertedWith(
-            //         "Raffle__UpkeepNotNeeded"
-            //     )
+            //     await expect(
+            //         await raffle.performUpkeep("0x")
+            //     ).to.be.revertedWith("Raffle__UpkeepNotNeeded")
             // })
 
             it("updates raffle state, calls VRFCoordinator, emits event", async () => {
                 await raffle.enterRaffle({ value: raffleEntranceFee })
 
                 await network.provider.send("evm_increaseTime", [
-                    interval.toNumber() + 1,
+                    interval.toNumber() + 1
                 ])
                 await network.provider.send("evm_mine", [])
 
@@ -172,7 +172,7 @@ if (developmentChains.includes(network.name)) {
                 await raffle.enterRaffle({ value: raffleEntranceFee })
 
                 await network.provider.send("evm_increaseTime", [
-                    interval.toNumber() + 1,
+                    interval.toNumber() + 1
                 ])
                 await network.provider.send("evm_mine", [])
             })
@@ -195,7 +195,7 @@ if (developmentChains.includes(network.name)) {
                 ) {
                     const accountConnectedRaffle = raffle.connect(accounts[i])
                     await accountConnectedRaffle.enterRaffle({
-                        value: raffleEntranceFee,
+                        value: raffleEntranceFee
                     })
                 }
 

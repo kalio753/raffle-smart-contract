@@ -19,35 +19,39 @@ module.exports = {
     networks: {
         hardhat: {
             chainId: 31337,
-            blockConfimations: 1,
+            blockConfimations: 1
         },
-        SEPOLIA: {
+        sepolia: {
             chainId: 11155111,
             blockConfimations: 6,
             url: SEPOLIA_RPC_URL,
             accounts: [SEPOLIA_PRIVATE_KEY],
-            saveDeployments: true,
-        },
+            saveDeployments: true
+        }
     },
     gasReporter: {
         enabled: false,
         outputFile: "gas-report.txt",
         noColors: true,
         currency: "USD",
-        coinmarketcap: COINMARKETCAP_API,
+        coinmarketcap: COINMARKETCAP_API
     },
     etherscan: {
-        apiKey: process.env.ETHERSCAN_API_KEY,
+        apiKey: process.env.ETHERSCAN_API_KEY
     },
     namedAccounts: {
         deployer: {
-            default: 0,
+            default: 0
         },
         player: {
-            default: 1,
-        },
+            default: 1
+        }
+    },
+    contractSizer: {
+        runOnCompile: false,
+        only: ["Raffle"]
     },
     mocha: {
-        timeout: 300000, // 300 seconds
-    },
+        timeout: 300000 // 300 seconds
+    }
 }

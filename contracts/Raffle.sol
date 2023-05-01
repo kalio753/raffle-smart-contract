@@ -158,6 +158,10 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
         s_lastTimeStamp = block.timestamp;
     }
 
+    function changeRaffleState() public {
+        s_raffleState = RaffleState.OPEN;
+    }
+
     // Pure / view functions
     function getEntranceFee() public view returns (uint256) {
         return i_entranceFee;
@@ -190,5 +194,9 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
 
     function getInterval() public view returns (uint256) {
         return i_interval;
+    }
+
+    function getCurrentBalance() public view returns (uint256) {
+        return address(this).balance;
     }
 }
